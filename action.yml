@@ -1,0 +1,52 @@
+# Copyright (c) 2021 Tailscale Inc & The Pins Team All rights reserved.
+# Use of this source code is governed by a BSD-style
+# license that can be found in the LICENSE file.
+name: 'Connect Tailscale with ACL labels'
+description: 'Connect your GitHub Action workflow to Tailscale with ACL labels'
+branding:
+  icon: 'arrow-right-circle'
+  color: 'gray-dark'
+inputs:
+  authkey:
+    description: 'Your Tailscale authentication key, from the admin panel. Use ephemeral authkey instead.'
+    required: true
+  labels:
+    required: true
+    description: 'ACL labels prefixed with tag: and seperated by commas.'
+    default: 'tag:gh-actions,tag:linux,tag:msft-azure'
+  version:
+    description: "Tailscale version to use, defaults to latest version of this action's release tag you use."
+    required: true
+    default: '1.16.1'
+runs:
+    using: 'composite'
+    steps:
+      - name: Download Tailscale CLI
+        shell: bash
+        id: download
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          MINOR=$(echo "$VERSION" | awk -F '.' {'print $2'})
+          if [ $((MINOR % 2)) -eq 0 ]; then
+            URL="https://pkgs.tailscale.com/stable/tailscale_${VERSION}_amd64.tgz"
+          else
+            URL="https://pkgs.tailscale.com/unstable/tailscale_${VERSION}_amd64.tgz"
+          fi
+          curl "$URL" -o tailscale.tgz
+          tar -C /tmp -xzf tailscale.tgz
+          rm tailscale.tgz
+          TSPATH=/tmp/tailscale_${VERSION}_amd64
+          sudo mv "${TSPATH}/tailscale" "${TSPATH}/tailscaled" /usr/bin
+      - name: "Run 'tailscale up' to connect to tailnet"
+        shell: bash
+        env:
+          TAILSCALE_AUTHKEY: ${{ inputs.authkey }}
+          TAILSCALE_LABELS: ${{ inputs.labels }}
+        run: |
+          sudo tailscaled 2>~/tailscaled.log &
+          HOSTNAME="github-$(cat /etc/hostname)"
+          until sudo tailscale up --authkey ${TAILSCALE_AUTHKEY} --hostname=${HOSTNAME} --advertise-tags=${TAILSCALE_LABELS} --accept-routes
+          do
+            sleep 0.5
+          done
