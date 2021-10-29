@@ -13,7 +13,7 @@ inputs:
   labels:
     required: true
     description: 'ACL labels prefixed with tag: and seperated by commas.'
-    default: 'tag:gh-actions,tag:linux,tag:msft-azure'
+    default: 'tag:gh-actions,tag:linux,tag:msft-azure,tag:docker'
   version:
     description: "Tailscale version to use, defaults to latest version of this action's release tag you use."
     required: true
@@ -46,7 +46,7 @@ runs:
         run: |
           sudo tailscaled 2>~/tailscaled.log &
           HOSTNAME="github-$(cat /etc/hostname)"
-          until sudo tailscale up --authkey ${TAILSCALE_AUTHKEY} --hostname=${HOSTNAME} --advertise-tags=${TAILSCALE_LABELS} --accept-routes
+          until sudo tailscale up --authkey ${TAILSCALE_AUTHKEY} --hostname ${HOSTNAME} --advertise-tags ${TAILSCALE_LABELS} --accept-routes
           do
             sleep 0.5
           done
