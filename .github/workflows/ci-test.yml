@@ -1,0 +1,26 @@
+nane: Action Test CI
+
+on:
+  push:
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Use ephemeral authkey to join ajhalili2006.github.tailscale.net
+        uses: ./
+        with:
+          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          tags: "tag:gh-actions,tag:linux,tag:msft-azure,tag:ssh,tag:docker"
+          version: "1.17.91"
+
+      - name: Check for gildedguy.tailnet ad ping
+        run: |
+          tailscale status | grep -q gilded
+          tailscale ping gildedguy || true
