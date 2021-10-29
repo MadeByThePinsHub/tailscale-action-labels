@@ -48,5 +48,10 @@ runs:
           HOSTNAME="github-$(cat /etc/hostname)"
           until sudo tailscale up --authkey ${TAILSCALE_AUTHKEY} --hostname ${HOSTNAME} --advertise-tags ${TAILSCALE_LABELS} --accept-routes
           do
+            echo "warning: Tailnet Wireguard tunnel still not ready, please standby..."
             sleep 0.5
           done
+          echo "Successfully connected to tailnet!"
+      - name: Show netcheck stuff
+        shell: bash
+        run: tailscale netcheck || true

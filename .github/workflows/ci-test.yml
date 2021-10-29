@@ -18,7 +18,7 @@ jobs:
         uses: ./
         with:
           authkey: ${{ secrets.TAILSCALE_AUTHKEY_AJHALILI2006 }}
-          tags: "tag:gh-actions,tag:linux,tag:msft-azure,tag:ssh,tag:docker"
+          labels: "tag:gh-actions,tag:linux,tag:msft-azure,tag:ssh,tag:docker"
           version: "1.17.91"
 
       - name: Check for gildedguy.tailnet ad ping
