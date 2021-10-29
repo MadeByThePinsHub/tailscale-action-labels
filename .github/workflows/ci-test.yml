@@ -1,4 +1,4 @@
-nane: Action Test CI
+name: Action Test CI
 
 on:
   push:
@@ -7,16 +7,17 @@ on:
       - '*'
 
 jobs:
-  build:
+  test-ping-unstable:
+    name: Test ping on Tailscale CLI Unstable
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
         uses: actions/checkout@v2
 
-      - name: Use ephemeral authkey to join ajhalili2006.github.tailscale.net
+      - name: Use ephemeral authkey to join tailnet on unstable stream
         uses: ./
         with:
-          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          authkey: ${{ secrets.TAILSCALE_AUTHKEY_AJHALILI2006 }}
           tags: "tag:gh-actions,tag:linux,tag:msft-azure,tag:ssh,tag:docker"
           version: "1.17.91"
 
